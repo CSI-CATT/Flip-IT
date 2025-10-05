@@ -24,7 +24,7 @@
 
 1. **Clone the repository**:
     ```bash
-    git clone https://github.com/CSI-DMCE-2024/FlipIt-Hacktoberfest2024.git
+    git clone https://github.com/CSI-CATT/Flip-IT.git
     ```
 2. **Open the project in Android Studio**:
     - Open Android Studio
