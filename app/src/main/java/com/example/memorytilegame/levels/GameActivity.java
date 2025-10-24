@@ -28,9 +28,10 @@ public class GameActivity extends AppCompatActivity {
     View blackOverlay, touchInterceptor;
     Handler handler;
     Runnable timerRunnable;
-    long startTime, elapsedTime; // elapsedTime kept for future pause implementation
+	long startTime, elapsedTime; // track total elapsed across pauses
     boolean isCountdownFinished = false; // kept for countdown flow
-    Button resumeTimer; // kept so UI remains available for future work
+	Button resumeTimer; // resume button shown when paused
+	boolean isPaused = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,6 +97,25 @@ public class GameActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+		pause.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (!isCountdownFinished) return; // ignore during pre-game countdown
+				if (!isPaused) {
+					pauseGame();
+				}
+			}
+		});
+
+		resumeTimer.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (isPaused) {
+					resumeGame();
+				}
+			}
+		});
     }
 
     private void startCountdown() {
@@ -131,6 +151,32 @@ public class GameActivity extends AppCompatActivity {
     private void stopTimer() {
         handler.removeCallbacks(timerRunnable);
     }
+
+	private void pauseGame() {
+		// accumulate elapsed time until now and stop ticking
+		isPaused = true;
+		elapsedTime += System.currentTimeMillis() - startTime;
+		stopTimer();
+
+		// show semi-transparent overlay and pause UI
+		blackOverlay.setAlpha(0.5f);
+		blackOverlay.setVisibility(View.VISIBLE);
+		touchInterceptor.setVisibility(View.VISIBLE);
+		countdown.setText("Paused");
+		countdown.setVisibility(View.VISIBLE);
+		resumeTimer.setVisibility(View.VISIBLE);
+	}
+
+	private void resumeGame() {
+		// hide overlay and resume ticking from accumulated elapsed
+		isPaused = false;
+		blackOverlay.setVisibility(View.GONE);
+		touchInterceptor.setVisibility(View.GONE);
+		countdown.setVisibility(View.GONE);
+		resumeTimer.setVisibility(View.GONE);
+
+		startTimer();
+	}
 
     @Override
     protected void onDestroy() {
